@@ -1,15 +1,15 @@
-describe('example service - module test', function() {
+describe('stateProgress service - module test', function() {
 
-    beforeEach(angular.mock.module('ui-router-progress.example'));
+    beforeEach(angular.mock.module('ui-router-progress.stateProgress'));
 
-    it('should have a "example" service', inject(function($injector) {
-        expect(function() { $injector.get('example'); }).not.toThrow();
+    it('should have a "stateProgress" service', inject(function($injector) {
+        expect(function() { $injector.get('stateProgress'); }).not.toThrow();
     }));
 
 });
 
-describe('example service - unit tests', function() {
-    var example;
+describe('stateProgress service - unit tests', function() {
+    var stateProgress;
     var $rootScope;
 
     beforeEach(function() {
@@ -19,10 +19,10 @@ describe('example service - unit tests', function() {
             return 1368817912431;
         };
 
-        angular.mock.module('ui-router-progress.example');
+        angular.mock.module('ui-router-progress.stateProgress');
 
-        inject(function(_example_, _$rootScope_) {
-            example = _example_;
+        inject(function(_stateProgress_, _$rootScope_) {
+            stateProgress = _stateProgress_;
             $rootScope = _$rootScope_;
         });
     });
@@ -30,16 +30,16 @@ describe('example service - unit tests', function() {
     afterEach(function() {
         Date.now = Date.__now__;
 
-        example = null;
+        stateProgress = null;
     });
 
 
     it('should be a function', function() {
-        expect(typeof example).toBe('function');
+        expect(typeof stateProgress).toBe('function');
     });
 
     it('should return true', function() {
-        expect(example()).toBe(true);
+        expect(stateProgress()).toBe(true);
     });
 
 });
