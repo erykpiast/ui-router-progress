@@ -1,39 +1,41 @@
-describe('stateProgressIndicator directive - module test', function() {
+describe('stateProgressMonitor service - module test', function() {
 
-    beforeEach(angular.mock.module('ui-router-progress.state-progress-indicator'));
+    beforeEach(angular.mock.module('ui-router-progress.state-progress-monitor'));
 
-    it('should have a "stateProgressIndicator" directive', inject(function($injector) {
-        expect(function() { $injector.get('stateProgressIndicator'); }).not.toThrow();
+    it('should have a "stateProgressMonitor" service', inject(function($injector) {
+        expect(function() { $injector.get('stateProgressMonitor'); }).not.toThrow();
     }));
 
 });
 
-describe('stateProgressIndicator directive - unit tests', function() {
-    var stateProgressIndicator;
-    var $rootScope;
+describe('stateProgressMonitor service - unit tests', function() {
+    var stateProgressMonitor;
 
     beforeEach(function() {
-        angular.mock.module('ui-router-progress.state-progress-indicator');
+        angular.mock.module('ui-router-progress.state-progress-monitor');
 
-        inject(function(_stateProgressIndicator_, _$rootScope_) {
-            stateProgressIndicator = _stateProgressIndicator_;
-            $rootScope = _$rootScope_;
+        inject(function(_stateProgressMonitor_) {
+            stateProgressMonitor = _stateProgressMonitor_;
         });
     });
 
     afterEach(function() {
         Date.now = Date.__now__;
 
-        stateProgressIndicator = null;
+        stateProgressMonitor = null;
     });
 
 
-    it('should be a function', function() {
-        expect(typeof stateProgressIndicator).toBe('function');
+    it('should be an object', function() {
+        expect(typeof stateProgressMonitor).toBe('object');
     });
 
-    it('should return true', function() {
-        expect(stateProgressIndicator()).toBe(true);
+    it('should expose watch method', function() {
+        expect(typeof stateProgressMonitor.watch).toBe('function'); 
+    });
+
+    it('should expose on method', function() {
+        expect(typeof stateProgressMonitor.on).toBe('function'); 
     });
 
 });

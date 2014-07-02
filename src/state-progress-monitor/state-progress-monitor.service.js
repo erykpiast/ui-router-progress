@@ -1,5 +1,7 @@
 angular
-    .module('ui-router-progress.state-progress-monitor', [ ])
+    .module('ui-router-progress.state-progress-monitor', [
+        'ui-router-progress.event-emitter'
+    ])
     .factory('stateProgressMonitor', function($rootScope, EventEmitter) {
         var included = [ ];
         var eventEmitter = new EventEmitter();

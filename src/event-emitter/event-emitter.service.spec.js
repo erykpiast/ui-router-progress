@@ -13,7 +13,7 @@ describe('EventEmitter service - module test', function() {
     });
 
     it('should let create an instance', function() {
-    	expect(function() { eventEmitter = new EventEmitter() }).not.toThrow();
+    	expect(function() { eventEmitter = new EventEmitter(); }).not.toThrow();
     });
 
     it('should instance has a on method on', function() {
