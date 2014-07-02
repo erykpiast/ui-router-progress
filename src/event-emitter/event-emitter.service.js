@@ -8,21 +8,38 @@ angular
 
         angular.extend(EventEmitter.prototype, {
             on: function(eventName, handler) {
+                if(!angular.isString(eventName)) {
+                    throw new Error('event name must be a string');
+                }
+
+                if(!angular.isFunction(handler)) {
+                    throw new Error('event handler must be a function');   
+                }
+
                 var eventHandlers = (this._eventsHandlers[eventName] || (this._eventsHandlers[eventName] = [ ]));
 
                 eventHandlers.push(handler);
                 
+                var removed = false;
                 return function() {
-                    for(var i = 0, maxi = eventHandlers.length; i < maxi; i++) {
-                        if(eventHandlers[i] === handler) {
-                            eventHandlers.splice(i, 1);
+                    if(!removed) {
+                        for(var i = 0, maxi = eventHandlers.length; i < maxi; i++) {
+                            if(eventHandlers[i] === handler) {
+                                eventHandlers.splice(i, 1);
 
-                            break;
+                                removed = true;
+
+                                break;
+                            }
                         }
                     }
                 };
             },
             emit: function(eventName) {
+                if(!angular.isString(eventName)) {
+                    throw new Error('event name must be a string');
+                }
+
                 var eventHandlers = this._eventsHandlers[eventName];
 
                 if(eventHandlers) {

@@ -10,7 +10,8 @@ module.exports = function (config) {
             'bower_components/angular-mocks/angular-mocks.js',
             'bower_components/angular-ui-router/release/angular-ui-router.js',
             'dist/ui-router-progress.js',
-            'src/**/*.spec.js'
+            'src/**/*.spec.js',
+            'test/main.js'
         ],
 
         reporters: [ 'dots' ],

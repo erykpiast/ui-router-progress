@@ -1,6 +1,7 @@
 {
     "globals": {
     /* Jasmine >> */
+        "jasmine": true,
         "describe": true,
         "it": true,
         "expect": true,

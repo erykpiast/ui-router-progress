@@ -6,6 +6,8 @@ angular
         return {
             restrict: 'A',
             link: function($scope, $element/*, $attrs*/) {
+                $element.addClass('ui-state-progress-indicator');
+
                 var removeShowListener = stateProgressMonitor.on('show', function() {
                     $element.addClass('is-loading');
                 });

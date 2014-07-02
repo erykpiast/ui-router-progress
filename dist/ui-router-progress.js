@@ -1,1 +1,189 @@
-angular.module("ui-router-progress.event-emitter",[]).factory("EventEmitter",function(){function a(){this._eventsHandlers={}}return angular.extend(a.prototype,{on:function(a,b){var c=this._eventsHandlers[a]||(this._eventsHandlers[a]=[]);return c.push(b),function(){for(var a=0,d=c.length;d>a;a++)if(c[a]===b){c.splice(a,1);break}}},emit:function(a){var b=this._eventsHandlers[a];if(b){var c,d,e,f=[{name:a,defaultPrevented:!1,stopPropagation:function(){c=!0},preventDefault:function(){this.defaultPrevented=!0}}];for(e=1,d=arguments.length;d>e;e++)f.push(arguments[e]);for(e=0,d=b.length;d>e&&(b[e].apply(null,f),!c);e++);}}}),a}),angular.module("ui-router-progress",["ui-router-progress.state-progress-monitor","ui-router-progress.state-progress-indicator"]),angular.module("ui-router-progress.state-progress-indicator",["ui-router-progress.state-progress-monitor"]).directive("uiStateProgressIndicator",["stateProgressMonitor",function(a){return{restrict:"A",link:function(b,c){var d=a.on("show",function(){c.addClass("is-loading")}),e=a.on("hide",function(){c.removeClass("is-loading")});b.$on("destroy",function(){d(),e()})}}}]),angular.module("ui-router-progress.state-progress-monitor",["ui-router-progress.event-emitter"]).factory("stateProgressMonitor",["$rootScope","EventEmitter",function(a,b){function c(a,b){-1!==f.indexOf(b.name)&&g.emit("show")}function d(){g.emit("hide")}function e(a){if(angular.isDefined(a)){if(angular.isString(a))return void f.push(a);if(angular.isString(a.name))return void f.push(a.name)}throw new Error("argument have to be state object or state name")}var f=[],g=new b;return a.$on("$stateChangeStart",c),a.$on("$stateChangeSuccess",d),a.$on("$stateChangeError",d),a.$on("$stateNotFound",d),{include:e,on:g.on.bind(g)}}]);
+// ### event-emitter.service.js >>
+
+angular
+    .module('ui-router-progress.event-emitter', [ ])
+    .factory('EventEmitter', function() {
+        function EventEmitter() {
+            this._eventsHandlers = { };
+        }
+
+
+        angular.extend(EventEmitter.prototype, {
+            on: function(eventName, handler) {
+                if(!angular.isString(eventName)) {
+                    throw new Error('event name must be a string');
+                }
+
+                if(!angular.isFunction(handler)) {
+                    throw new Error('event handler must be a function');   
+                }
+
+                var eventHandlers = (this._eventsHandlers[eventName] || (this._eventsHandlers[eventName] = [ ]));
+
+                eventHandlers.push(handler);
+                
+                var removed = false;
+                return function() {
+                    if(!removed) {
+                        for(var i = 0, maxi = eventHandlers.length; i < maxi; i++) {
+                            if(eventHandlers[i] === handler) {
+                                eventHandlers.splice(i, 1);
+
+                                removed = true;
+
+                                break;
+                            }
+                        }
+                    }
+                };
+            },
+            emit: function(eventName) {
+                if(!angular.isString(eventName)) {
+                    throw new Error('event name must be a string');
+                }
+
+                var eventHandlers = this._eventsHandlers[eventName];
+
+                if(eventHandlers) {
+                    var stopped, maxi, i;
+                    var args = [{
+                        name: eventName,
+                        defaultPrevented: false,
+                        stopPropagation: function() {
+                            stopped = true;
+                        },
+                        preventDefault: function() {
+                            this.defaultPrevented = true;
+                        }
+                    }];
+
+                    for(i = 1, maxi = arguments.length; i < maxi; i++) {
+                        args.push(arguments[i]);
+                    }
+
+                    for(i = 0, maxi = eventHandlers.length; i < maxi; i++) {
+                        eventHandlers[i].apply(null, args);
+
+                        if(stopped) {
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+
+        return EventEmitter;
+    });
+
+
+// ### << event-emitter.service.js
+
+
+
+// ### main.js >>
+
+angular
+	.module('ui-router-progress', [
+		'ui-router-progress.state-progress-monitor',
+		'ui-router-progress.state-progress-indicator'
+	]);
+
+
+// ### << main.js
+
+
+
+// ### state-progress-indicator.directive.js >>
+
+angular
+    .module('ui-router-progress.state-progress-indicator', [
+        'ui-router-progress.state-progress-monitor'
+    ])
+    .directive('uiStateProgressIndicator', ['stateProgressMonitor', function(stateProgressMonitor) {
+        return {
+            restrict: 'A',
+            link: function($scope, $element/*, $attrs*/) {
+                $element.addClass('ui-state-progress-indicator');
+
+                var removeShowListener = stateProgressMonitor.on('show', function() {
+                    $element.addClass('is-loading');
+                });
+
+                var removeHideListener = stateProgressMonitor.on('hide', function() {
+                    $element.removeClass('is-loading');
+                });
+
+                $scope.$on('destroy', function() {
+                    removeShowListener();
+                    removeHideListener();
+                });
+            }
+        };
+    }]);
+
+
+// ### << state-progress-indicator.directive.js
+
+
+
+// ### state-progress-monitor.service.js >>
+
+angular
+    .module('ui-router-progress.state-progress-monitor', [
+        'ui-router-progress.event-emitter'
+    ])
+    .provider('stateProgressMonitor', function() {
+        var included = [ ];
+
+        function watch(state) {
+            if(angular.isDefined(state)) {
+                if(angular.isString(state)) {
+                    included.push(state);
+
+                    return;
+                } else if(angular.isString(state.name)) {
+                    included.push(state.name);
+
+                    return;
+                }
+            }
+
+            throw new Error('argument have to be state object or state name');
+        }
+
+
+        return {
+            $get: ['$rootScope', 'EventEmitter', function($rootScope, EventEmitter) {
+                var eventEmitter = new EventEmitter();
+
+
+                function _showLoader(e, toState/*, toParams, fromState, fromParams, err*/) {
+                    if(included.indexOf(toState.name) !== -1) {
+                        eventEmitter.emit('show');
+                    }
+                }
+
+
+                function _hideLoader() {
+                    eventEmitter.emit('hide');
+                }
+
+
+                $rootScope.$on('$stateChangeStart', _showLoader);
+                $rootScope.$on('$stateChangeSuccess', _hideLoader);
+                $rootScope.$on('$stateChangeError', _hideLoader);
+                $rootScope.$on('$stateNotFound', _hideLoader);        
+
+                return {
+                    on: eventEmitter.on.bind(eventEmitter)
+                };
+            }],
+            watch: watch
+        };
+    });
+
+
+// ### << state-progress-monitor.service.js
+
+

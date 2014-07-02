@@ -7,11 +7,48 @@
         <script type="text/javascript" src="../bower_components/angular/angular.js"></script>
         <script type="text/javascript" src="../bower_components/angular-ui-router/release/angular-ui-router.js"></script>
         <script type="text/javascript" src="../dist/ui-router-progress.js"></script>
-    </head>
-    <body ng-controller="exampleCtrl">
-       
-        Example service: {{ exampleResult }}
-
         <script type="text/javascript" src="main.js"></script>
+
+        <style>
+            html {
+                height: 100%;
+            }
+
+            body {
+                min-height: 100%;
+            }
+
+            .ui-state-progress-indicator {
+                position: relative;
+            }
+                .ui-state-progress-indicator:before {
+                    animation: spin 1s linear infinite;
+                    background-color: #F00;
+                    content: "";
+                    display: none;
+                    height: 10px;
+                    left: 50%;
+                    position: absolute;
+                    top: 50%;
+                    transform: translateX( -50% ) translateY( -50% );
+                    width: 10px;
+                    z-index: 100;
+                }
+                .ui-state-progress-indicator.is-loading:before {
+                    display: block;
+                }
+            
+            @keyframes spin() {
+                from {
+                    transform: translateX( -50% ) translateY( -50% ) rotate( 0 );
+                }
+                to {
+                    transform: translateX( -50% ) translateY( -50% ) rotate( 360deg );
+                }
+            }
+
+        </style>
+    </head>
+    <body ui-view ui-state-progress-indicator>
     </body>
 </html>
