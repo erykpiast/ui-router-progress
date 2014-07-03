@@ -200,6 +200,23 @@ describe('EventEmitter service - events emitting', function() {
         expect(eventHandler2).toHaveBeenCalledWith(jasmine.any(Object), 'arg', 1, jasmine.any(Object), jasmine.any(Function));
     });
 
+    it('should call event handlers every time when "emit" method is called and do it one time per handler', function() {
+        eventEmitter.emit('event');
+
+        expect(eventHandler1.callCount).toBe(1);
+
+
+        eventEmitter.emit('event');
+
+        expect(eventHandler1.callCount).toBe(2);
+    });
+
+    it('should call event handlers after when "emit" method is called', function() {
+        eventEmitter.emit('event');
+
+        expect(eventHandler1).toHaveBeenCalled();
+        expect(eventHandler2).toHaveBeenCalled();
+    });
 });
 
 
