@@ -4,11 +4,15 @@ describe('EventEmitter service - module test', function() {
 
     beforeEach(angular.mock.module('ui-router-progress.event-emitter'));
 
-    it('should have a "EventEmitter" service', inject(function(_EventEmitter_) {
-        EventEmitter = _EventEmitter_;
+    it('should have a "EventEmitter" service', function() {
+        expect(function() {
+            inject(function(_EventEmitter_) {
+                EventEmitter = _EventEmitter_;
 
-        expect(EventEmitter).toBeDefined();
-    }));
+                expect(EventEmitter).toBeDefined();
+            });
+        }).not.toThrow();
+    });
 
     it('should be a function', function() {
         expect(typeof EventEmitter).toBe('function');

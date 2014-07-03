@@ -10,6 +10,7 @@
         /* ngMock >> */
             "module": true,
             "inject": true,
+            "$controller": true,
             "$compile": true,
         /* << ngMock */
     /* << Jasmine */

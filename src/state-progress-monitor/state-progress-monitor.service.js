@@ -5,20 +5,52 @@ angular
     .provider('stateProgressMonitor', function() {
         var included = [ ];
 
-        function watch(state) {
-            if(angular.isDefined(state)) {
-                if(angular.isString(state)) {
-                    included.push(state);
+        function watch(/*states*/) {
+            if(arguments.length) {
+                var args = [ ];
 
-                    return;
-                } else if(angular.isString(state.name)) {
-                    included.push(state.name);
+                for(var i = 0, maxi = arguments.length; i < maxi; i++) {
+                    var state = arguments[i];
+                
+                    if(angular.isDefined(state)) {
+                        if(angular.isString(state)) {
+                            args.push(state);
 
-                    return;
+                            included.push(state);
+
+                            continue;
+                        } else if(angular.isString(state.name)) {
+                            args.push(state.name);
+
+                            included.push(state.name);
+
+                            continue;
+                        }
+                    }
+
+                    // exception handler not available...
+                    throw new Error('arguments have to be state objects or state names');
                 }
+
+
+                var removed = false;
+                return function() {
+                    if(!removed) {
+                        for(var i = 0, maxi = arguments.length; i < maxi; i++) {
+                            var index = included.indexOf(arguments[i]);
+                        
+                            if(index !== -1) {
+                                included.splice(index, 1);
+                            }
+                        }
+
+                        removed = true;
+                    }
+                };
             }
 
-            throw new Error('argument have to be state object or state name');
+            // exception handler not available...
+            throw new Error('arguments have to be state objects or state names');
         }
 
 
