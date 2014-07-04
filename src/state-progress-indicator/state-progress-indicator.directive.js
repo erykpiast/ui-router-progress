@@ -4,15 +4,13 @@ angular
     ])
     .directive('uiStateProgressIndicator', function(stateProgressMonitor) {
         return {
-            restrict: 'A',
+            restrict: 'AC',
             link: function($scope, $element/*, $attrs*/) {
-                $element.addClass('ui-state-progress-indicator');
-
-                var removeShowListener = stateProgressMonitor.on('show', function() {
+                var removeShowListener = stateProgressMonitor.on('loadstart', function() {
                     $element.addClass('is-loading');
                 });
 
-                var removeHideListener = stateProgressMonitor.on('hide', function() {
+                var removeHideListener = stateProgressMonitor.on('loadend', function() {
                     $element.removeClass('is-loading');
                 });
 

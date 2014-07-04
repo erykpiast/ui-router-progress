@@ -27,7 +27,7 @@ describe('stateProgressMonitor service - provider', function() {
     beforeEach(function() {
         angular.mock.module('ui-router-progress.state-progress-monitor');
 
-        module(function(_stateProgressMonitorProvider_) {
+        angular.mock.module(function(_stateProgressMonitorProvider_) {
             stateProgressMonitorProvider = _stateProgressMonitorProvider_;
 
             expect(stateProgressMonitorProvider).toBeDefined();
@@ -44,45 +44,45 @@ describe('stateProgressMonitor service - provider', function() {
     });
 
 
-    it('should expose "watch" method which let to specify states for watching on', function() {
-        expect(typeof stateProgressMonitorProvider.watch).toBe('function');
+    it('should expose "exclude" method which let to specify states that should not be excludeed', function() {
+        expect(typeof stateProgressMonitorProvider.exclude).toBe('function');
 
         expect(function() {
-            stateProgressMonitorProvider.watch('state1');
+            stateProgressMonitorProvider.exclude('state1');
         }).not.toThrow();
 
         expect(function() {
-            stateProgressMonitorProvider.watch('state1', 'state2');
+            stateProgressMonitorProvider.exclude('state1', 'state2');
         }).not.toThrow();
 
         expect(function() {
-            stateProgressMonitorProvider.watch('state1', 'state2', { name: 'state3' });
+            stateProgressMonitorProvider.exclude('state1', 'state2', { name: 'state3' });
         }).not.toThrow();
     });
 
-    it('should expose "watch" method which throws if states to watch are not state objects or strings', function() {
-        expect(typeof stateProgressMonitorProvider.watch).toBe('function');
+    it('should expose "exclude" method which throws if states to exclude are not state objects or strings', function() {
+        expect(typeof stateProgressMonitorProvider.exclude).toBe('function');
 
         expect(function() {
-            stateProgressMonitorProvider.watch();
+            stateProgressMonitorProvider.exclude();
         }).toThrow();
 
         expect(function() {
-            stateProgressMonitorProvider.watch(1);
+            stateProgressMonitorProvider.exclude(1);
         }).toThrow();
 
         expect(function() {
-            stateProgressMonitorProvider.watch({ surname: 'state1' });
+            stateProgressMonitorProvider.exclude({ surname: 'state1' });
         }).toThrow();
     });
 
-    it('should expose "watch" method which returns function which let turn off watching for passed states', function() {
-        var unwatch = stateProgressMonitorProvider.watch('state1', 'state2', { name: 'state3' });
+    it('should expose "exclude" method which returns function which let turn off exlcuding for passed states', function() {
+        var include = stateProgressMonitorProvider.exclude('state1', 'state2', { name: 'state3' });
 
-        expect(typeof unwatch).toBe('function');
+        expect(typeof include).toBe('function');
 
         expect(function() {
-            unwatch();
+            include();
         }).not.toThrow();
     });
 
@@ -91,7 +91,6 @@ describe('stateProgressMonitor service - provider', function() {
 
 describe('stateProgressMonitor service - registering handlers for events', function() {
     var stateProgressMonitor;
-
 
     beforeEach(function() {
         angular.mock.module('ui-router-progress.state-progress-monitor');
@@ -116,30 +115,106 @@ describe('stateProgressMonitor service - registering handlers for events', funct
 });
 
 describe('stateProgressMonitor service - firing events', function() {
+    var stateProgressMonitorProvider;
     var stateProgressMonitor;
     var $rootScope;
+    var startHandler;
+    var endHandler;
 
 
     beforeEach(function() {
         angular.mock.module('ui-router-progress.state-progress-monitor');
 
+        angular.mock.module(function(_stateProgressMonitorProvider_) {
+            stateProgressMonitorProvider = _stateProgressMonitorProvider_;
+
+            stateProgressMonitorProvider.exclude('excluded1', { name: 'excluded2' });
+        });
+
         inject(function(_stateProgressMonitor_, _$rootScope_) {
             stateProgressMonitor = _stateProgressMonitor_;
-
             $rootScope = _$rootScope_;
+
+            stateProgressMonitor.on('loadstart', startHandler = jasmine.createSpy('startHandler'));
+            stateProgressMonitor.on('loadend', endHandler = jasmine.createSpy('endHandler'));
         });
     });
 
     afterEach(function() {
+        stateProgressMonitorProvider = null;
         stateProgressMonitor = null;
+        $rootScope = null;
+        startHandler = null;
+        endHandler = null;
     });
 
-    it('should fire events handler on watched state change', function() {
-        // expect(typeof stateProgressMonitor.on).toBe('function');
 
-        // expect(function() {
-        //     stateProgressMonitor.on('show', function() { });
-        // }).not.toThrow();
+    it('should fire events handler on state change start', function() {
+        $rootScope.$emit('$stateChangeStart', { name: 'included' });
+
+        expect(startHandler).toHaveBeenCalled();
+    });
+
+    it('should not fire events handler on excluded state change start', function() {
+        $rootScope.$emit('$stateChangeStart', { name: 'excluded1' });
+
+        expect(startHandler).not.toHaveBeenCalled();
+
+        $rootScope.$emit('$stateChangeStart', { name: 'excluded2' });
+
+        expect(startHandler).not.toHaveBeenCalled();
+    });
+
+
+    it('should fire events handler on state change end', function() {
+        $rootScope.$emit('$stateChangeSuccess', { name: 'included' });
+
+        expect(endHandler).toHaveBeenCalled();
+    });
+
+    it('should not fire events handler on excluded state change end', function() {
+        $rootScope.$emit('$stateChangeSuccess', { name: 'excluded1' });
+
+        expect(endHandler).not.toHaveBeenCalled();
+
+
+        $rootScope.$emit('$stateChangeSuccess', { name: 'excluded2' });
+
+        expect(endHandler).not.toHaveBeenCalled();
+    });
+
+
+    it('should fire events handler on state change error', function() {
+        $rootScope.$emit('$stateChangeError', { name: 'included' });
+        
+        expect(endHandler).toHaveBeenCalled();
+
+
+        endHandler.calls.reset();
+        $rootScope.$emit('$stateNotFound', { to: 'included' });
+
+        expect(endHandler).toHaveBeenCalled();
+    });
+
+    it('should not fire events handler on excluded state change end', function() {
+        $rootScope.$emit('$stateChangeError', { name: 'excluded1' });
+
+        expect(endHandler).not.toHaveBeenCalled();
+
+
+        $rootScope.$emit('$stateChangeError', { name: 'excluded2' });
+
+        expect(endHandler).not.toHaveBeenCalled();
+
+
+        $rootScope.$emit('$stateNotFound', { to: 'excluded1' });
+
+        expect(endHandler).not.toHaveBeenCalled();
+
+
+        $rootScope.$emit('$stateNotFound', { to: 'excluded2' });
+
+        expect(endHandler).not.toHaveBeenCalled();
     });
 
 });
