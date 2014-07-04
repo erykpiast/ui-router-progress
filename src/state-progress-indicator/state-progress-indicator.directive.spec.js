@@ -51,7 +51,7 @@ describe('stateProgressIndicator service - markup', function() {
 });
 
 
-describe('stateProgressIndicator service - cooperation with stateProgresMonitor', function() {
+describe('stateProgressIndicator service - registering handlers on stateProgresMonitor events', function() {
     var monitorOn;
     var monitorOff;
     var element;
@@ -114,6 +114,42 @@ describe('stateProgressIndicator service - cooperation with stateProgresMonitor'
         endHandler();
         
         expect(element.find(':first-child').hasClass('is-loading')).toBeFalsy();
+    });
+
+});
+
+
+describe('stateProgressIndicator service - deregistering handlers', function() {
+    var monitorOff;
+
+    beforeEach(function() {
+        angular.mock.module('ui-router-progress.state-progress-indicator', function($provide) {
+            $provide.value('stateProgressMonitor', {
+                on: jasmine.createSpy('monitorOn').and.returnValue(monitorOff = jasmine.createSpy('monitorOff'))
+            });
+        });
+
+        inject(function($compile, $rootScope) {
+            var $scope = $rootScope.$new();
+            $compile('<div>' +
+                '<div class="ui-state-progress-indicator">' +
+                    '<span>Test</span>' +
+                '</div>' +
+            '</div>')($scope);
+
+            $scope.$digest();
+
+            $scope.$destroy();
+        });
+    });
+
+    afterEach(function() {
+        monitorOff = null;
+    });
+
+    it('Should remove events handlers when scope is gone', function() {
+        expect(monitorOff).toHaveBeenCalled();
+        expect(monitorOff.calls.count()).toBe(2);
     });
 
 });

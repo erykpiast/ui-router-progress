@@ -126,7 +126,7 @@ angular
                     $element.removeClass('is-loading');
                 });
 
-                $scope.$on('destroy', function() {
+                $scope.$on('$destroy', function() {
                     removeShowListener();
                     removeHideListener();
                 });
