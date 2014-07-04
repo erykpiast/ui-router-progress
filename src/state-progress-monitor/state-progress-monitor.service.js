@@ -1,6 +1,6 @@
 angular
     .module('ui-router-progress.state-progress-monitor', [
-        'ui-router-progress.event-emitter'
+        'angular-event-emitter'
     ])
     .provider('stateProgressMonitor', function() {
         var excluded = [ ];

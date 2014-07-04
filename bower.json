@@ -22,7 +22,8 @@
   ],
   "dependencies": {
     "angular": "~1.2",
-    "angular-ui-router": "~0.2.10"
+    "angular-ui-router": "~0.2.10",
+    "angular-event-emitter": "https://github.com/erykpiast/angular-event-emitter.git"
   },
   "devDependencies": {
     "angular-mocks": "~1.2",
